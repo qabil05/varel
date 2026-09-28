@@ -8,6 +8,45 @@
 <style>
 html,body{margin:0;background:#070707}#boot{position:fixed;inset:0;z-index:2000;background:#070707;color:#f7f5ef;display:grid;place-content:center;justify-items:center;gap:24px;font-family:Arial,sans-serif;transition:opacity .5s ease}#boot.ready{opacity:0;pointer-events:none}.boot-word{font-size:clamp(42px,7vw,112px);letter-spacing:.3em;padding-left:.3em;animation:boot-breathe 1.5s ease-in-out infinite alternate}.boot-line{width:180px;height:1px;background:#444;overflow:hidden}.boot-line:after{content:'';display:block;height:1px;background:#d9c597;animation:boot-line 1.4s ease-in-out infinite}.boot-status{font-size:9px;letter-spacing:.15em;max-width:80vw;text-align:center;line-height:1.8}#boot a{color:inherit;font-size:12px} @keyframes boot-breathe{from{opacity:.5}to{opacity:1}}@keyframes boot-line{from{transform:translateX(-100%)}to{transform:translateX(100%)}}@media(prefers-reduced-motion:reduce){.boot-word,.boot-line:after{animation:none}}
 </style>
+<script>
+(function(){
+  function fixVarelAssetUrl(value){
+    try{
+      var raw = typeof value === 'string' ? value : (value && value.url ? value.url : String(value));
+      var url = new URL(raw, window.location.href);
+      if(url.origin === window.location.origin && url.pathname === '/models/varel-watch.glb'){
+        return new URL('./models/varel-watch.glb', window.location.href).href;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  if(window.fetch){
+    var nativeFetch = window.fetch.bind(window);
+    window.fetch = function(input, init){
+      var fixed = fixVarelAssetUrl(input);
+      if(fixed){
+        if(typeof Request !== 'undefined' && input instanceof Request){
+          input = new Request(fixed, input);
+        }else{
+          input = fixed;
+        }
+      }
+      return nativeFetch(input, init);
+    };
+  }
+
+  if(window.XMLHttpRequest && XMLHttpRequest.prototype.open){
+    var nativeOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url){
+      var fixed = fixVarelAssetUrl(url);
+      var args = Array.prototype.slice.call(arguments);
+      if(fixed) args[1] = fixed;
+      return nativeOpen.apply(this, args);
+    };
+  }
+})();
+</script>
   <script type="module" crossorigin src="./assets/index-DQs8I_V8.js"></script>
   <link rel="preload" as="style" data-app-style onload="this.onload=null;this.rel='stylesheet'" crossorigin href="./assets/index-D7qhQowB.css">
 </head><body>
